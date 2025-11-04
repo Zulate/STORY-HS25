@@ -1,0 +1,28 @@
+{
+  "name": "story-hs25",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zulate/STORY-HS25.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Zulate/STORY-HS25/issues"
+  },
+  "homepage": "https://github.com/Zulate/STORY-HS25#readme",
+  "description": "",
+  "devDependencies": {
+    "vite": "^7.1.12",
+    "vite-plugin-glsl": "^1.5.4"
+  },
+  "dependencies": {
+    "three": "^0.181.0"
+  }
+}
