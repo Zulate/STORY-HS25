@@ -13,7 +13,7 @@ void main() {
   float diff = max(dot(vNormal, lightDir), 0.0);
 
   // animated stripes using UV.x and time
-  float stripes = 0.5 + 0.5 * sin((vUv.x * 10.0) + u_time * 2.0);
+  float stripes = 0.5 + 0.5 * sin((vUv.x * 10.0) + u_time * 10.0);
   vec3 base = mix(vec3(0.15, 0.5, 0.85), vec3(1.0, 0.6, 0.2), stripes);
 
   vec3 color = base * (0.35 + 0.65 * diff);

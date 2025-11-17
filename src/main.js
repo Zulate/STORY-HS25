@@ -1,85 +1,148 @@
-// Basic Three.js starter for Vite with wheel-based rotation (X and Y axes)
 import * as THREE from 'three';
-import vert from './shaders/cube.vert?raw';
-import frag from './shaders/cube.frag?raw';
+import SceneManager from './sceneManager.js';
+import createHomeScene from './scenes/homeScene.js';
+import createSceneA from './scenes/sceneA.js';
 
-// Find mount point; fall back to body if not present
-const mount = document.getElementById('app');
-
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 3;
+// mount point for renderer
+const mount = document.getElementById('app') || document.body;
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-if (mount) {
-  mount.appendChild(renderer.domElement);
-} else {
-  document.body.appendChild(renderer.domElement);
-}
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+mount.appendChild(renderer.domElement);
 
-// Simple cube
-const geometry = new THREE.BoxGeometry(1, 1, 1);
+// Scene manager
+const manager = new SceneManager(renderer);
+manager.register('home', createHomeScene);
+manager.register('sceneA', createSceneA);
 
-// Shader uniforms
-const uniforms = {
-  u_time: { value: 0.0 },
-  u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
-};
+// Simple on-screen menu
+const menu = document.createElement('div');
+menu.style.position = 'fixed';
+menu.style.right = '16px';
+menu.style.top = '16px';
+menu.style.background = 'rgba(0,0,0,0.5)';
+menu.style.color = 'white';
+menu.style.padding = '8px';
+menu.style.borderRadius = '6px';
+menu.style.zIndex = '9999';
+menu.style.fontFamily = 'sans-serif';
+menu.innerHTML = `
+  <div style="margin-bottom:6px;font-weight:600">Scenes</div>
+  <button data-scene="home">Home</button>
+  <button data-scene="sceneA">Scene A</button>
+`;
+document.body.appendChild(menu);
 
-const shaderMat = new THREE.ShaderMaterial({
-  vertexShader: vert,
-  fragmentShader: frag,
-  uniforms,
-  side: THREE.DoubleSide
+menu.addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-scene]');
+  if (!btn) return;
+  const name = btn.getAttribute('data-scene');
+  // use fade transition when changing scenes
+  showSceneWithFade(name).catch(err => console.error('show scene error', err));
 });
 
-const cube = new THREE.Mesh(geometry, shaderMat);
-scene.add(cube);
+// create a fullscreen overlay used for fade transitions
+const overlay = document.createElement('div');
+overlay.style.position = 'fixed';
+overlay.style.left = '0';
+overlay.style.top = '0';
+overlay.style.width = '100%';
+overlay.style.height = '100%';
+overlay.style.background = '#000';
+overlay.style.pointerEvents = 'none';
+overlay.style.opacity = '0';
+overlay.style.transition = 'opacity 400ms ease';
+overlay.style.zIndex = '9998';
+document.body.appendChild(overlay);
 
-// --- Scroll-to-rotate state & configuration ---
-let rotSpeedX = 0; // rotation velocity applied to cube.rotation.x
-let rotSpeedY = 0; // rotation velocity applied to cube.rotation.y
-const SCROLL_SENSITIVITY = 0.00025; // tuning: increase to make scrolling more aggressive
-const DAMPING = 0.9; // per-frame damping (0-1) — lower = faster decay
-
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  if (uniforms && uniforms.u_resolution) uniforms.u_resolution.value.set(window.innerWidth, window.innerHeight);
+function fadeInOverlay(duration = 400) {
+  return new Promise((resolve) => {
+    overlay.style.transition = `opacity ${duration}ms ease`;
+    // ensure visible
+    requestAnimationFrame(() => {
+      overlay.style.opacity = '1';
+    });
+    const onEnd = (e) => {
+      if (e && e.propertyName !== 'opacity') return;
+      overlay.removeEventListener('transitionend', onEnd);
+      resolve();
+    };
+    overlay.addEventListener('transitionend', onEnd);
+    // fallback in case transitionend doesn't fire
+    setTimeout(resolve, duration + 50);
+  });
 }
-window.addEventListener('resize', onWindowResize);
 
-function onWheel(e) {
-  // Prevent page scroll so wheel controls the cube.
-  // We add rotation velocity based on wheel delta and let animate() decay it for smooth motion.
-
-  // deltaY (vertical wheel) -> rotate around X axis (tilt up/down)
-  // deltaX (horizontal wheel / two-finger swipe) -> rotate around Y axis (spin left/right)
-  rotSpeedX += e.deltaY * SCROLL_SENSITIVITY;
-  rotSpeedY += e.deltaX * SCROLL_SENSITIVITY;
+function fadeOutOverlay(duration = 400) {
+  return new Promise((resolve) => {
+    overlay.style.transition = `opacity ${duration}ms ease`;
+    requestAnimationFrame(() => {
+      overlay.style.opacity = '0';
+    });
+    const onEnd = (e) => {
+      if (e && e.propertyName !== 'opacity') return;
+      overlay.removeEventListener('transitionend', onEnd);
+      resolve();
+    };
+    overlay.addEventListener('transitionend', onEnd);
+    setTimeout(resolve, duration + 50);
+  });
 }
 
-// Use passive:false so we can call preventDefault() in the handler.
-window.addEventListener('wheel', onWheel, { passive: false });
-const clock = new THREE.Clock();
-
-function animate() {
-  requestAnimationFrame(animate);
-
-  // Update shader time uniform
-  uniforms.u_time.value = clock.getElapsedTime();
-
-  // Apply velocity to rotation
-  cube.rotation.x += rotSpeedX;
-  cube.rotation.y += rotSpeedY;
-
-  // Apply damping so movement slows down smoothly
-  rotSpeedX *= DAMPING;
-  rotSpeedY *= DAMPING;
-
-  renderer.render(scene, camera);
+async function showSceneWithFade(name) {
+  // fade to black, switch scene, then fade back
+  await fadeInOverlay(350);
+  await manager.show(name);
+  await fadeOutOverlay(350);
 }
-animate();
+
+// Forward pointer events to active scene if it exposes handlers
+const canvas = renderer.domElement;
+window.addEventListener('mousemove', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const inside = e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom;
+  if (!inside) return;
+  if (manager.active && manager.active.instance && manager.active.instance.onPointerMove) {
+    manager.active.instance.onPointerMove(e.clientX, e.clientY);
+  }
+}, { passive: true });
+
+window.addEventListener('touchmove', (e) => {
+  if (!e.touches || e.touches.length === 0) return;
+  const t = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  const inside = t.clientX >= rect.left && t.clientX <= rect.right && t.clientY >= rect.top && t.clientY <= rect.bottom;
+  if (!inside) return;
+  if (manager.active && manager.active.instance && manager.active.instance.onPointerMove) {
+    manager.active.instance.onPointerMove(t.clientX, t.clientY);
+  }
+}, { passive: true });
+
+// Forward wheel to active scene if it handles it
+window.addEventListener('wheel', (e) => {
+  if (manager.active && manager.active.instance && manager.active.instance.onWheel) {
+    manager.active.instance.onWheel(e);
+    e.preventDefault();
+  }
+}, { passive: false });
+
+function onResize() {
+  const w = window.innerWidth, h = window.innerHeight;
+  renderer.setSize(w, h);
+  manager.resize(w, h);
+}
+window.addEventListener('resize', onResize);
+
+// Start on the home scene
+manager.show('home').catch(err => console.error(err));
+
+// Main loop
+function loop() {
+  requestAnimationFrame(loop);
+  manager.update();
+}
+loop();
