@@ -12,40 +12,58 @@ export default class SceneManager {
     this.scenes.set(name, { factory, instance: null });
   }
 
-  async show(name, options = { unloadOthers: true }) {
-    if (!this.scenes.has(name)) throw new Error(`Scene '${name}' not registered`);
+async show(name, options = { unloadOthers: true }) {
+  if (!this.scenes.has(name)) throw new Error(`Scene '${name}' not registered`);
 
-    // stop current
-    if (this.active) {
-      try { await this.active.instance.stop(); } catch (e) { console.warn('error stopping scene', e); }
+  // stop current
+  if (this.active) {
+    try {
+      await this.active.instance.stop?.();
+    } catch (e) {
+      console.warn('error stopping scene', e);
+    }
+  }
+
+  const entry = this.scenes.get(name);
+
+  // CREATE the instance (if not already lazily created)
+  if (!entry.instance) {
+    entry.instance = await entry.factory(this.renderer);
+
+    // 🔥 wait for "load" BEFORE init/start
+    if (entry.instance.load) {
+      await entry.instance.load();     // <-- this is the missing piece
     }
 
-    const entry = this.scenes.get(name);
-    if (!entry.instance) {
-      // create instance lazily
-      entry.instance = await entry.factory(this.renderer);
-      if (entry.instance.init) await entry.instance.init(this.renderer);
+    if (entry.instance.init) {
+      await entry.instance.init(this.renderer);
     }
+  }
 
-    this.active = { name, instance: entry.instance };
-    if (this.active.instance.start) await this.active.instance.start();
+  // BECOME ACTIVE
+  this.active = { name, instance: entry.instance };
 
-    // Optionally unload other scenes to free GPU resources
-    if (options.unloadOthers) {
-      for (const [otherName, otherEntry] of this.scenes) {
-        if (otherName === name) continue;
-        if (otherEntry.instance && otherEntry.instance.dispose) {
-          try {
-            otherEntry.instance.stop && await otherEntry.instance.stop();
-            otherEntry.instance.dispose();
-          } catch (e) {
-            console.warn('error disposing scene', otherName, e);
-          }
-          otherEntry.instance = null;
+  if (this.active.instance.start) {
+    await this.active.instance.start();
+  }
+
+  // unload others
+  if (options.unloadOthers) {
+    for (const [otherName, otherEntry] of this.scenes) {
+      if (otherName === name) continue;
+      if (otherEntry.instance?.dispose) {
+        try {
+          otherEntry.instance.stop?.();
+          otherEntry.instance.dispose();
+        } catch (e) {
+          console.warn('error disposing scene', otherName, e);
         }
+        otherEntry.instance = null;
       }
     }
   }
+}
+
 
   // Unload a specific scene resources (dispose and remove instance)
   unload(name) {

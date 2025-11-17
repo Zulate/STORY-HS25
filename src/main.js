@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import SceneManager from './sceneManager.js';
-import createHomeScene from './scenes/homeScene.js';
+import createPremiseScene from './scenes/premiseScene.js';
 import createSceneA from './scenes/sceneA.js';
 
 // mount point for renderer
@@ -16,7 +16,7 @@ mount.appendChild(renderer.domElement);
 
 // Scene manager
 const manager = new SceneManager(renderer);
-manager.register('home', createHomeScene);
+manager.register('Premise', createPremiseScene);
 manager.register('sceneA', createSceneA);
 
 // Simple on-screen menu
@@ -24,15 +24,15 @@ const menu = document.createElement('div');
 menu.style.position = 'fixed';
 menu.style.right = '16px';
 menu.style.top = '16px';
-menu.style.background = 'rgba(0,0,0,0.5)';
+menu.style.background = 'rgba(0,0,0,1.0)';
 menu.style.color = 'white';
 menu.style.padding = '8px';
 menu.style.borderRadius = '6px';
 menu.style.zIndex = '9999';
 menu.style.fontFamily = 'sans-serif';
 menu.innerHTML = `
-  <div style="margin-bottom:6px;font-weight:600">Scenes</div>
-  <button data-scene="home">Home</button>
+  <div style="margin-bottom:6px;font-weight:600">Memories</div>
+  <button data-scene="Premise">Premise</button>
   <button data-scene="sceneA">Scene A</button>
 `;
 document.body.appendChild(menu);
@@ -55,11 +55,11 @@ overlay.style.height = '100%';
 overlay.style.background = '#000';
 overlay.style.pointerEvents = 'none';
 overlay.style.opacity = '0';
-overlay.style.transition = 'opacity 400ms ease';
+overlay.style.transition = 'opacity 800ms ease';
 overlay.style.zIndex = '9998';
 document.body.appendChild(overlay);
 
-function fadeInOverlay(duration = 400) {
+function fadeInOverlay(duration = 800) {
   return new Promise((resolve) => {
     overlay.style.transition = `opacity ${duration}ms ease`;
     // ensure visible
@@ -77,7 +77,7 @@ function fadeInOverlay(duration = 400) {
   });
 }
 
-function fadeOutOverlay(duration = 400) {
+function fadeOutOverlay(duration = 800) {
   return new Promise((resolve) => {
     overlay.style.transition = `opacity ${duration}ms ease`;
     requestAnimationFrame(() => {
@@ -95,9 +95,9 @@ function fadeOutOverlay(duration = 400) {
 
 async function showSceneWithFade(name) {
   // fade to black, switch scene, then fade back
-  await fadeInOverlay(350);
+  await fadeInOverlay(750);
   await manager.show(name);
-  await fadeOutOverlay(350);
+  await fadeOutOverlay(750);
 }
 
 // Forward pointer events to active scene if it exposes handlers
@@ -137,8 +137,8 @@ function onResize() {
 }
 window.addEventListener('resize', onResize);
 
-// Start on the home scene
-manager.show('home').catch(err => console.error(err));
+// Start on the Premise scene
+manager.show('Premise').catch(err => console.error(err));
 
 // Main loop
 function loop() {
@@ -146,3 +146,22 @@ function loop() {
   manager.update();
 }
 loop();
+
+const observer = new IntersectionObserver(
+  (entries, observer) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("appear");
+        observer.unobserve(entry.target);
+      }
+    });
+  },
+  {
+    root: null,              // viewport
+    threshold: 0,            // fire as soon as it crosses the line
+    rootMargin: "-50% 0px -50% 0px"
+    // Top margin 50% moves the observer line down to the middle
+  }
+);
+
+document.querySelectorAll(".fade-in").forEach(el => observer.observe(el));

@@ -6,7 +6,12 @@ export default async function createSceneA(renderer) {
   camera.position.z = 4;
 
   const geo = new THREE.SphereGeometry(0.9, 32, 24);
-  const mat = new THREE.MeshStandardMaterial({ color: 0x66ccff, metalness: 0.2, roughness: 0.4 });
+  const mat = new THREE.MeshStandardMaterial({
+    color: 0x66ccff,
+    metalness: 0.2,
+    roughness: 0.4,
+    wireframe: true
+  });
   const mesh = new THREE.Mesh(geo, mat);
   scene.add(mesh);
 
@@ -16,6 +21,16 @@ export default async function createSceneA(renderer) {
 
   let rot = 0;
 
+  // NEW → asynchronous loading
+  async function load() {
+    // If you load textures/glb later, do it here e.g.:
+    // const tex = await loader.loadAsync('...');
+    // mesh.material.map = tex;
+
+    // Dummy wait to prove sync works:
+    await new Promise(r => setTimeout(r, 100)); 
+  }
+
   function init() {}
   function start() {}
   function stop() {}
@@ -23,8 +38,8 @@ export default async function createSceneA(renderer) {
   function dispose() {
     try {
       scene.remove(mesh);
-      if (mesh.geometry) mesh.geometry.dispose();
-      if (mesh.material) mesh.material.dispose();
+      mesh.geometry?.dispose();
+      mesh.material?.dispose();
       scene.remove(light);
     } catch (e) {
       console.warn('error disposing sceneA', e);
@@ -42,5 +57,5 @@ export default async function createSceneA(renderer) {
     renderer.render(scene, camera);
   }
 
-  return { init, start, stop, resize, animate, dispose };
+  return { load, init, start, stop, resize, animate, dispose };
 }
