@@ -2,9 +2,6 @@ import * as THREE from 'three';
 import SceneManager from './sceneManager.js';
 import createPremiseScene from './scenes/premiseScene.js';
 import createSceneA from './scenes/sceneA.js';
-import { defineConfig } from 'vite';
-
-export default defineConfig({ base: './'});
 
 let stepScroller = null;
 let textboxes = null;
