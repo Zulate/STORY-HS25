@@ -8,7 +8,7 @@ let textboxes = null;
 let rotationState = null;
 
 async function loadSceneContent(sceneName) {
-  const res = await fetch('src/text/texts.json');
+  const res = await fetch('../src/text/texts.json');
   const data = await res.json();
 
   const scene = data[sceneName];
