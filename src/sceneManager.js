@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+
 export default class SceneManager {
   constructor(renderer) {
     this.renderer = renderer;
