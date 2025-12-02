@@ -50,6 +50,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
+renderer.setClearColor( 0xffffff, 1 );
 mount.appendChild(renderer.domElement);
 
 // ============================
@@ -62,28 +63,102 @@ manager.register('sceneA', createSceneA);
 // ============================
 // Simple on-screen menu
 // ============================
+const menuToggle = document.createElement('button');
+menuToggle.className = 'scene-menu-toggle';
+document.body.appendChild(menuToggle);
+
+menuToggle.addEventListener('click', () => {
+  menu.classList.toggle('hide');
+});
+
 const menu = document.createElement('div');
-menu.style.position = 'fixed';
-menu.style.right = '16px';
-menu.style.top = '16px';
-menu.style.background = 'rgba(0,0,0,1.0)';
-menu.style.color = 'white';
-menu.style.padding = '8px';
-menu.style.borderRadius = '6px';
-menu.style.zIndex = '9999';
-menu.style.fontFamily = 'sans-serif';
+menu.className = 'scene-menu';
 menu.innerHTML = `
-  <div style="margin-bottom:6px;font-weight:600">Memories</div>
-  <button data-scene="Premise">Premise</button>
-  <button data-scene="sceneA">Scene A</button>
+  <h1>Memories-Hub</h1>
+  <button data-scene="Premise"><h2>Premise</h2></button>
+  <button data-scene="sceneA"><h2>Fitting a Cat in a Klein Bottle</h2></button>
+  <button data-scene="sceneA"><h2>Lavanderia</h2></button>
+  <button data-scene="sceneA"><h2>Rectangles</h2></button>
+  <button data-scene="sceneA"><h2>Semionde</h2></button>
+  <button data-scene="sceneA"><h2>Conclusion</h2></button>
+  <button class="about-button"><h2>About</h2></button>
 `;
 document.body.appendChild(menu);
+
+const aboutus = document.createElement('div');
+aboutus.className = 'about-us';
+aboutus.innerHTML = `
+  <h1>About</h1>
+  <h3>This project was created by Iacopo Turano and Marco Stalder as part of the HS25.STORY course at HSLU.</h3>
+  <br><h3>------------------------------------</h3>
+  <h3>More information about them can be found here:</h3>
+  <br>
+  <h3>Iacopo Turano (Writing / Storytelling): <a href="https://github.com/turanoiacopo/" target="_blank">Github</a></h3>
+  <br>
+  <h3>Marco Stalder (Design / Visuals): <a href="https://marcostalder.framer.website/" target="_blank">Portfolio</a> / <a href="https://instagram.com/zulate/" target="_blank">Instagram</a></h3>
+  <br><h3>------------------------------------</h3>
+  <h3>Also, big thanks to our lecturer <a href="https://kontrast.ch/hofer/" target="_blank">Susanne Hofer</a> for her support!</h3>
+  <br><h3>------------------------------------</h3>
+  <button><h2>Back to the Project</h2></button>
+`;
+document.body.appendChild(aboutus);
+
+const menuSelector = document.createElement('div');
+menuSelector.className = 'scene-menu-selector';
+document.querySelector('.scene-menu').appendChild(menuSelector);
+
+// MOUSE OVER MENU SELECTOR
+
+menu.addEventListener('mouseover', (e) => {
+  const btn = e.target.closest('button');
+  if (!btn){
+    document.querySelector('.scene-menu-selector').style.opacity = '0';
+    return;
+  }
+  document.querySelector('.scene-menu-selector').style.opacity = '1';
+  const rect = btn.getBoundingClientRect();
+  menuSelector.style.top = `${rect.top}px`;
+});
+
+aboutus.addEventListener('mouseover', (e) => {
+  const btn = e.target.closest('button');
+  if (!btn){
+    menuSelector.style.opacity = '0';
+    return;
+  }
+  menuSelector.style.opacity = '1';
+  const rect = btn.getBoundingClientRect();
+  menuSelector.style.top = `${rect.top}px`;
+});
+
+// ENTER ABOUT US
+
+menu.addEventListener('click', (e) => {
+  const aboutBtn = e.target.closest('button.about-button');
+  if (!aboutBtn) return;
+  aboutus.classList.add('show');
+  menuSelector.style.opacity = '0';
+  document.querySelector('.about-us').appendChild(menuSelector);
+});
+
+// LEAVE ABOUT US
+
+aboutus.addEventListener('click', (e) => {
+  const closeAboutBtn = e.target.closest('button');
+  if (!closeAboutBtn) return;
+  aboutus.classList.remove('show');
+  document.querySelector('.scene-menu-selector').style.opacity = '0';
+  document.querySelector('.scene-menu').appendChild(menuSelector);
+});
+
+// ENTER SELECTED SCENE
 
 menu.addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-scene]');
   if (!btn) return;
   const name = btn.getAttribute('data-scene');
   showSceneWithFade(name).catch(err => console.error('show scene error', err));
+  menu.classList.add('hide');
 });
 
 // ============================
@@ -288,7 +363,6 @@ const observer2 = new IntersectionObserver((entries, observer) => {
   rootMargin: "-50% 0px -50% 0px"
 });
 document.querySelectorAll(".fade-out").forEach(disel => observer2.observe(disel));
-console.log(document.querySelectorAll(".fade-out"));
 
 // ============================
 // StepScroller for guided scrolling

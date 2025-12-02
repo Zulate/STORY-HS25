@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 
-
 export default class SceneManager {
   constructor(renderer) {
     this.renderer = renderer;
@@ -64,7 +63,6 @@ async show(name, options = { unloadOthers: true }) {
     }
   }
 }
-
 
   // Unload a specific scene resources (dispose and remove instance)
   unload(name) {

@@ -1,3 +1,7 @@
+::highlight {
+    background-color: yellow;
+}
+
 body{
     margin: 0;
     padding: 0;
@@ -9,22 +13,11 @@ h1, h2, h3, p{
     padding: 12px;
 }
 
-button{
-    background-color: rgba(0, 0, 0, 1.0);
-    color: white;
-    border: 2px solid white;
-    font-size: large;
-    padding: 8px 12px;
-    margin: 4px 0;
-    cursor: pointer;
-}
-
 #app {
     position: fixed;
     inset: 0;
     z-index: -1;
     pointer-events: none;
-
 }
 
 .spacer{
@@ -93,4 +86,167 @@ button{
     color: rgba(255, 255, 255, 1.0);
     transition-delay: 1.5s, 1ms, 1ms;
     transition-property: color, width;
+}
+
+.scene-menu{
+    position: fixed;
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    align-content: flex-start;
+    flex-wrap: wrap;
+    flex-direction: column;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255,255,255,1.0);
+    color: rgba(0,0,0,1.0);
+    z-index: 9998;
+    font-family: sans-serif;
+    cursor: default;
+    overflow: hidden;
+    transition: left 500ms ease;
+}
+
+.scene-menu.hide{
+    left: -100vw;
+    transition: left 500ms ease;
+}
+
+.scene-menu h1, .about-us h1{
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+    font-size: 6rem;
+    width: fit-content;
+    padding: 0;
+    padding-top: 40px;
+    padding-left: 40px;
+    padding-bottom: 32px;
+    margin: 0;
+}
+
+.scene-menu h2, .about-us h2, .about-us h3{
+    font-family: "Inter", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+    font-size: 4rem;
+    margin-bottom: 16px;
+    width:fit-content;
+    padding: 0;
+    margin: 0;
+}
+
+.scene-menu button, .about-us button{
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    padding-left: 40px;
+    cursor: pointer;
+    color: rgba(0,0,0,1.0);
+    background-color: rgba(255, 255, 255, 0.0);
+    border: none;
+    text-align: left;
+    transition: 400ms ease;
+}
+
+.scene-menu button:last-of-type, .about-us button:last-of-type{
+    margin-top: auto;
+    padding-bottom: 40px;
+}
+
+.scene-menu button:hover{
+    padding-left: 60px;
+    transition: 200ms ease;
+}
+
+.scene-menu button:hover h2, .about-us button:hover h2{
+    text-decoration: underline;
+}
+
+.scene-menu-toggle{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 72px;
+    height: 72px;
+    margin: 40px;
+    background-image: url('../STORY-HS25/src/images/menu-button.png');
+    background-size: contain;
+    background-color: rgba(0,0,0,0);
+    background-repeat: no-repeat;
+    background-position: center center;
+    border: none;
+    cursor: pointer;
+    transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: center center;
+}
+
+.scene-menu-toggle:hover{
+    transform-origin: center center;
+    transform: scale(1.1);
+    transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.scene-menu-selector{
+    position: absolute;
+    background-image: url('../STORY-HS25/src/images/menu-arrow.png');
+    background-size: contain;
+    background-color: rgba(0,0,0,0);
+    background-repeat: no-repeat;
+    background-position: center center;
+    top: 50%;
+    right: 30vw;
+    width: 150px;
+    height: 62px;
+    opacity: 0;
+    transition: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: translateY(25%);
+    z-index: 9999;
+}
+
+.about-us{
+    position: fixed;
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    align-content: flex-start;
+    flex-wrap: wrap;
+    flex-direction: column;
+    top: 100vh;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(255,255,255,1.0);
+    color: rgba(0,0,0,1.0);
+    z-index: 9998;
+    font-family: sans-serif;
+    cursor: default;
+    transition: top 500ms ease;
+}
+
+.about-us.show{
+    top: 0vw;
+    transition: top 500ms ease;
+}
+
+.about-us h3{
+    font-size: 2rem;
+    padding-left: 40px;
+    padding-right: 40px;
+    text-align: left;
+}
+
+.about-us a{
+    font-weight: 500;
+    color: rgba(0,0,0,1.0);
+    text-decoration: none;
+}
+
+.about-us a:hover{
+    color: rgba(0,0,0,1.0);
+    text-decoration: underline;
 }
