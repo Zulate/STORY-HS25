@@ -2,6 +2,19 @@
 *::-moz-selection{ background: #000000; color: #ffffff;}
 *::-webkit-selection{ background: #000000; color: #ffffff;}
 
+/* @link https://utopia.fyi/type/calculator?c=390,24,1.067,1920,84,1.125,5,2,&s=0.75|0.5|0.25,1.5|2|3|4|6,s-l&g=s,l,xl,12 */
+
+:root {
+  --fs--2: clamp(1.3175rem, 0.596rem + 2.9601vw, 2.5481rem);
+  --fs--1: clamp(1.4058rem, 0.5746rem + 3.41vw, 3.6667rem);
+  --fs-0: clamp(1.5rem, 0.5441rem + 3.9216vw, 5.25rem);
+  --fs-1: clamp(1.6005rem, 0.503rem + 4.5027vw, 5.9063rem);
+  --fs-2: clamp(1.7077rem, 0.4493rem + 5.1627vw, 6.6445rem);
+  --fs-3: clamp(1.8222rem, 0.3812rem + 5.9116vw, 7.4751rem);
+  --fs-4: clamp(1.9442rem, 0.2962rem + 6.761vw, 8.4095rem);
+  --fs-5: clamp(2.0745rem, 0.1918rem + 7.7241vw, 9.4607rem);
+}
+
 body{
     margin: 0;
     padding: 0;
@@ -119,7 +132,7 @@ h1, h2, h3, p{
     font-optical-sizing: auto;
     font-weight: 300;
     font-style: normal;
-    font-size: 6rem;
+    font-size: var(--fs-1);
     width: fit-content;
     padding: 0;
     padding-top: 40px;
@@ -133,7 +146,7 @@ h1, h2, h3, p{
     font-optical-sizing: auto;
     font-weight: 300;
     font-style: normal;
-    font-size: 4rem;
+    font-size: var(--fs--1);
     margin-bottom: 16px;
     width:fit-content;
     padding: 0;
@@ -199,12 +212,11 @@ h1, h2, h3, p{
     background-repeat: no-repeat;
     background-position: center center;
     top: 50%;
-    left: 50%;
+    left: 60%;
     width: 2222px;
     height: 68px;
     opacity: 0;
     transition: 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
-    transform: translateY(20%);
     z-index: 9999;
     pointer-events: none;
 }
@@ -220,7 +232,7 @@ h1, h2, h3, p{
     top: 100vh;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
     background: rgba(255,255,255,1.0);
     color: rgba(0,0,0,1.0);
     z-index: 9998;
@@ -235,7 +247,7 @@ h1, h2, h3, p{
 }
 
 .about-us h3{
-    font-size: 2rem;
+    font-size: var(--fs--2);
     padding-left: 40px;
     padding-right: 40px;
     text-align: left;
@@ -250,4 +262,10 @@ h1, h2, h3, p{
 .about-us a:hover{
     color: rgba(0,0,0,1.0);
     text-decoration: underline;
+}
+
+@media (max-width: 1000px) {
+    .scene-menu-selector{
+        display: none;
+    }
 }
