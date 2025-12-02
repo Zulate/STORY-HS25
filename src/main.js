@@ -89,7 +89,7 @@ const aboutus = document.createElement('div');
 aboutus.className = 'about-us';
 aboutus.innerHTML = `
   <h1>About</h1>
-  <h3>This project was created by Iacopo Turano and Marco Stalder as part of the HS25.STORY course at HSLU.</h3>
+  <h3>This project was created by <a href="https://github.com/turanoiacopo/" target="_blank">Iacopo Turano</a> and <a href="https://marcostalder.framer.website/" target="_blank">Marco Stalder</a> as part of the HS25.STORY course at HSLU.</h3>
   <br><h3>------------------------------------</h3>
   <h3>More information about them can be found here:</h3>
   <br>
@@ -124,6 +124,7 @@ aboutus.addEventListener('mouseover', (e) => {
   const btn = e.target.closest('button');
   if (!btn){
     menuSelector.style.opacity = '0';
+    menuSelector.style.top = `110vh`;
     return;
   }
   menuSelector.style.opacity = '1';
