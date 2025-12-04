@@ -279,9 +279,9 @@ function onResize() {
 window.addEventListener('resize', onResize);
 
 // ============================
-// Start first scene
+// Start first scene Initial
 // ============================
-manager.show('Lavanderia').catch(err => console.error(err));
+manager.show('Premise').catch(err => console.error(err));
 
 // ============================
 // Main loop

@@ -3,7 +3,6 @@ import bgUrl from '../images/galaxy-night-view-bw-front.png';
 import bgUrlBack from '../images/galaxy-night-view-bw-back.png';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { OutlinePass } from 'three/addons/postprocessing/OutlinePass.js';
 import threeTone from '../images/threeTone.jpg';
 
 
@@ -126,16 +125,6 @@ export default async function createPremiseScene(renderer) {
     u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
   };
 
-
-
-  // Add outline pass (renders outlines in postprocessing)
-  const outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera);
-  outlinePass.edgeStrength = 8.0;
-  outlinePass.edgeThickness = 1.0;
-  outlinePass.visibleEdgeColor.set(0x000000); // black outline
-  outlinePass.overlayMaterial.blending = THREE.NormalBlending;
-  outlinePass.roundedCorners = false;
-
   function animate(dt) {
     if (!mesh) return;
     // advance shader time for cube
@@ -200,11 +189,6 @@ export default async function createPremiseScene(renderer) {
     scene.add(mesh);
     scene.add(lines);
 
-    // Add mesh to outline pass so it gets outlined
-    outlinePass.selectedObjects = [mesh];
-
-    //composer.addPass(outlinePass);
-
   }
 
 
@@ -262,8 +246,6 @@ function onWindowResize() {
           if (mesh.material) mesh.material.dispose && mesh.material.dispose();
         }
 
-        // outline pass
-        if (outlinePass && outlinePass.dispose) outlinePass.dispose();
       } catch (e) {
         console.warn('error disposing PremiseScene resources', e);
       }
