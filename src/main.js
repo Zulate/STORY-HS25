@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import SceneManager from './sceneManager.js';
 import createPremiseScene from './scenes/premiseScene.js';
 import createSceneA from './scenes/sceneA.js';
+import createLavanderiaScene from './scenes/lavanderiaScene.js';
 
 let stepScroller = null;
 let textboxes = null;
@@ -59,6 +60,7 @@ mount.appendChild(renderer.domElement);
 const manager = new SceneManager(renderer);
 manager.register('Premise', createPremiseScene);
 manager.register('sceneA', createSceneA);
+manager.register('Lavanderia', createLavanderiaScene);
 
 // ============================
 // Simple on-screen menu
@@ -77,12 +79,13 @@ menu.innerHTML = `
   <h1>Memories-Hub</h1>
   <button data-scene="Premise"><h2>Premise</h2></button>
   <button data-scene="sceneA"><h2>Fitting a Cat in a Klein Bottle</h2></button>
-  <button data-scene="sceneA"><h2>Lavanderia</h2></button>
+  <button data-scene="Lavanderia"><h2>Lavanderia</h2></button>
   <button data-scene="sceneA"><h2>Rectangles</h2></button>
   <button data-scene="sceneA"><h2>Semionde</h2></button>
   <button data-scene="sceneA"><h2>Conclusion</h2></button>
   <button class="about-button"><h2>About</h2></button>
 `;
+menu.classList.add('hide');
 document.body.appendChild(menu);
 
 const aboutus = document.createElement('div');
@@ -278,7 +281,7 @@ window.addEventListener('resize', onResize);
 // ============================
 // Start first scene
 // ============================
-manager.show('Premise').catch(err => console.error(err));
+manager.show('Lavanderia').catch(err => console.error(err));
 
 // ============================
 // Main loop
