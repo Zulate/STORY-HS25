@@ -3,7 +3,6 @@ import bgUrl from '../images/galaxy-night-view-bw-front.png';
 import bgUrlBack from '../images/galaxy-night-view-bw-back.png';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import threeTone from '../images/threeTone.jpg';
 
 
 export default async function createPremiseScene(renderer) {
@@ -11,7 +10,6 @@ export default async function createPremiseScene(renderer) {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   camera.position.z = 3;
-
   window.addEventListener( 'resize', onWindowResize );
 
   const composer = new EffectComposer(renderer);
@@ -20,7 +18,6 @@ export default async function createPremiseScene(renderer) {
   let mesh, bgMesh, bgMeshBack, bgTexFront, bgTexBack, bgMat, bgMatBack, bgGeo, bgGeoBack;
 
   const loader = new THREE.TextureLoader();
-  const toonLoader = new THREE.TextureLoader();
 
   // --- Speed lines (cheap, GPU-driven) ---
   const PARTICLE_COUNT = 800; // tune: more = denser
@@ -163,8 +160,8 @@ export default async function createPremiseScene(renderer) {
     bgTexFront.minFilter = THREE.LinearFilter;
     bgTexBack.minFilter = THREE.LinearFilter;
 
-    bgMat = new THREE.MeshBasicMaterial({ map: bgTexFront, transparent: true });
-    bgMatBack = new THREE.MeshBasicMaterial({ map: bgTexBack, transparent: false });
+    bgMat = new THREE.MeshBasicMaterial({ color: 0xffffff, map: bgTexFront, transparent: true});
+    bgMatBack = new THREE.MeshBasicMaterial({ color: 0xffffff, map: bgTexBack, transparent: true});
 
     bgGeo = new THREE.PlaneGeometry(16 * 2, 9 * 2, 4, 4);
     bgGeoBack = new THREE.PlaneGeometry(16 * 4, 9 * 4, 4, 4);
@@ -175,11 +172,7 @@ export default async function createPremiseScene(renderer) {
     bgMeshBack.position.z = -4.5;
     bgMesh.position.z = -3;
 
-    const mat = new THREE.MeshToonMaterial();
-    mat.gradientMap = await toonLoader.loadAsync(threeTone);
-    mat.gradientMap.minFilter = THREE.NearestFilter;
-    mat.gradientMap.magFilter = THREE.NearestFilter;
-    mat.color = new THREE.Color(0xffffff);
+    const mat = new THREE.MeshBasicMaterial({color: 0x000000});
 
     const geo = new THREE.BoxGeometry(0.5, 0.5, 0.5);
     mesh = new THREE.Mesh(geo, mat);

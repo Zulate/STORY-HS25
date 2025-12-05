@@ -7,12 +7,12 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 
 import { CustomOutlinePass } from "/src/shaders/CustomOutlinePass.js";
 import FindSurfaces from "/src/shaders/FindSurfaces.js";
+import { Vector3 } from 'three';
+import { lerp } from 'three/src/math/MathUtils.js';
 
 export default async function createLavanderiaScene(renderer) {
 
     let mouse = new THREE.Vector2();
-    let mesh = new THREE.Mesh();
-    let cubemesh = new THREE.Mesh();
     let lineMouseX = 0;
     let lineMouseY = 0;
     const scene = new THREE.Scene();
@@ -21,7 +21,7 @@ export default async function createLavanderiaScene(renderer) {
     u_time: { value: 0.0 },
     u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
     };
-    camera.position.z = 10;
+    camera.position.z = 0;
 
     const depthTexture = new THREE.DepthTexture();
     const renderTarget = new THREE.WebGLRenderTarget(
@@ -54,6 +54,12 @@ export default async function createLavanderiaScene(renderer) {
 
     let rot = 0;
 
+    let mesh = new THREE.Mesh();
+    let cubemesh = new THREE.Mesh();
+    let door1 = new THREE.Mesh();
+    let door2 = new THREE.Mesh();
+    let door3 = new THREE.Mesh();
+
     // Load model
     const loader = new GLTFLoader();
     const model = "src/models/lavanderia.glb";
@@ -61,7 +67,12 @@ export default async function createLavanderiaScene(renderer) {
     scene.add(gltf.scene);
     mesh = gltf.scene.children[0];
     cubemesh = gltf.scene.children[1];
-    mesh.position.x = 0;
+    door1 = gltf.scene.children[5];
+    door2 = gltf.scene.children[4];
+    door3 = gltf.scene.children[6];
+    console.log(gltf.scene);
+    gltf.scene.position.z = -28;
+    mesh.position.x = -4.5;
     mesh.position.y = -1;
     mesh.position.z = -4;
 
@@ -70,18 +81,29 @@ export default async function createLavanderiaScene(renderer) {
     mesh.rotation.z = -1.57079633 / 2;
     surfaceFinder.surfaceId = 0;
 
-    console.log(gltf.scene);
-
     scene.traverse((node) => {
-        console.log(node);
-        if (node.type === "Mesh") {
+        if (node.name === "Door-2") {
             const colorsTypedArray = surfaceFinder.getSurfaceIdAttribute(node);
             node.geometry.setAttribute(
                 "color",
                 new THREE.BufferAttribute(colorsTypedArray, 4)
             );
             node.material = new THREE.MeshBasicMaterial({color: 0xffffff});
-        } else if (node.name === "Cube") {
+        } else if(node.name === "Door-1"){
+            const colorsTypedArray = surfaceFinder.getSurfaceIdAttribute(node);
+            node.geometry.setAttribute(
+                "color",
+                new THREE.BufferAttribute(colorsTypedArray, 4)
+            );
+            node.material = new THREE.MeshBasicMaterial({color: 0xffffff});
+        }else if(node.name === "Door-3"){
+            const colorsTypedArray = surfaceFinder.getSurfaceIdAttribute(node);
+            node.geometry.setAttribute(
+                "color",
+                new THREE.BufferAttribute(colorsTypedArray, 4)
+            );
+            node.material = new THREE.MeshBasicMaterial({color: 0xffffff});
+        }else if(node.type === "Mesh") {
             console.log("cube loaded");
             const colorsTypedArray = surfaceFinder.getSurfaceIdAttribute(node);
             node.geometry.setAttribute(
@@ -115,6 +137,7 @@ export default async function createLavanderiaScene(renderer) {
     // });
 
     let targetCamX = 0, targetCamY = 0;
+    let targetCamZ = 0;  // target z position for smooth interpolation
     const MOUSE_CAMERA_SENSITIVITY = 0.6;
 
     function onPointerMove(clientX, clientY) {
@@ -126,7 +149,15 @@ export default async function createLavanderiaScene(renderer) {
         targetCamX = nx * MOUSE_CAMERA_SENSITIVITY;
         targetCamY = ny * MOUSE_CAMERA_SENSITIVITY;
     }
-    
+
+    function onWheel(scrollPosition) {
+
+        targetCamZ += scrollPosition.deltaY * 0.01;  // accumulate scroll into target
+
+        console.log("camera position", camera.position.z, "targetValue", targetCamZ);
+
+    }
+
     async function init() {
     }
     function start() {}
@@ -158,16 +189,37 @@ export default async function createLavanderiaScene(renderer) {
     function animate(dt) {
         uniforms.u_time.value += dt;
 
-        camera.position.x += (targetCamX - camera.position.x) * 0.08 + Math.sin(uniforms.u_time.value / 2) * 0.01;
-        camera.position.y += (targetCamY - camera.position.y) * 0.08 + Math.sin(uniforms.u_time.value / 2) * 0.01;
-        camera.lookAt(0, 0, 0);
+        camera.rotation.y = -(targetCamX - camera.position.x) * 0.09 + Math.sin(uniforms.u_time.value / 2) * 0.01;
+        camera.rotation.x = (targetCamY - camera.position.y) * 0.09 + Math.sin(uniforms.u_time.value / 2) * 0.01;
 
-        rot += dt * 0.8;
+        rot += dt * 0.2;
         mesh.rotation.y = rot;
         mesh.rotation.x = rot;
+
+
+
+        if(camera.position.z < -2 && camera.position.z > -15){
+            door1.rotation.y = lerp(door1.rotation.y, 1.5, 0.05);
+            console.log("door1 opened");
+            camera.position.z = lerp(camera.position.z, targetCamZ, 0.01);
+        } else if(camera.position.z < -35 && camera.position.z > -50){
+            door2.rotation.y = lerp(door2.rotation.y, 1.5, 0.05);
+            console.log("door2 opened");
+            camera.position.z = lerp(camera.position.z, targetCamZ, 0.01);
+        }else if(camera.position.z <= -70){
+            targetCamZ = -(camera.position.z + (-targetCamZ));
+            camera.position.z = 2;
+            camera.position.z = lerp(camera.position.z, targetCamZ, 0.01);
+
+        }else {
+            camera.position.z = lerp(camera.position.z, targetCamZ, 0.01);
+            door1.rotation.y = lerp(door1.rotation.y, 0, 0.05);
+            door2.rotation.y = lerp(door2.rotation.y, 0, 0.05);
+            door3.rotation.y = lerp(door3.rotation.y, 0, 0.05);
+        }
 
         composer.render();
     }
 
-    return { init, start, stop, resize, onPointerMove, animate, dispose };
+    return { init, start, stop, resize, onWheel, onPointerMove, animate, dispose };
 }
