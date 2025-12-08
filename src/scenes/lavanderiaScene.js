@@ -54,7 +54,6 @@ export default async function createLavanderiaScene(renderer) {
 
     let rot = 0;
 
-    let mesh = new THREE.Mesh();
     let cubemesh = new THREE.Mesh();
     let door1 = new THREE.Mesh();
     let door2 = new THREE.Mesh();
@@ -65,20 +64,13 @@ export default async function createLavanderiaScene(renderer) {
     const model = "src/models/lavanderia.glb";
     loader.load(model, (gltf) => {
     scene.add(gltf.scene);
-    mesh = gltf.scene.children[0];
-    cubemesh = gltf.scene.children[1];
-    door1 = gltf.scene.children[5];
-    door2 = gltf.scene.children[4];
-    door3 = gltf.scene.children[6];
+    cubemesh = gltf.scene.children[0];
+    door1 = gltf.scene.children[4];
+    door2 = gltf.scene.children[3];
+    door3 = gltf.scene.children[5];
     console.log(gltf.scene);
     gltf.scene.position.z = -28;
-    mesh.position.x = -4.5;
-    mesh.position.y = -1;
-    mesh.position.z = -4;
 
-    mesh.rotation.x = 0;
-    mesh.rotation.y = 0;
-    mesh.rotation.z = -1.57079633 / 2;
     surfaceFinder.surfaceId = 0;
 
     scene.traverse((node) => {
@@ -138,7 +130,7 @@ export default async function createLavanderiaScene(renderer) {
 
     let targetCamX = 0, targetCamY = 0;
     let targetCamZ = 0;  // target z position for smooth interpolation
-    const MOUSE_CAMERA_SENSITIVITY = 0.6;
+    const MOUSE_CAMERA_SENSITIVITY = 0.9;
 
     function onPointerMove(clientX, clientY) {
         const rect = renderer.domElement.getBoundingClientRect();
@@ -189,24 +181,20 @@ export default async function createLavanderiaScene(renderer) {
     function animate(dt) {
         uniforms.u_time.value += dt;
 
-        camera.rotation.y = -(targetCamX - camera.position.x) * 0.09 + Math.sin(uniforms.u_time.value / 2) * 0.01;
-        camera.rotation.x = (targetCamY - camera.position.y) * 0.09 + Math.sin(uniforms.u_time.value / 2) * 0.01;
+        camera.rotation.y = -(targetCamX - camera.rotation.x) * 0.09 + Math.sin(uniforms.u_time.value / 2) * 0.02;
+        camera.rotation.x = (targetCamY - camera.rotation.y) * 0.09 + Math.sin(uniforms.u_time.value / 2) * 0.02;
 
         rot += dt * 0.2;
-        mesh.rotation.y = rot;
-        mesh.rotation.x = rot;
 
 
 
         if(camera.position.z < -2 && camera.position.z > -15){
             door1.rotation.y = lerp(door1.rotation.y, 1.5, 0.05);
-            console.log("door1 opened");
             camera.position.z = lerp(camera.position.z, targetCamZ, 0.01);
         } else if(camera.position.z < -35 && camera.position.z > -50){
             door2.rotation.y = lerp(door2.rotation.y, 1.5, 0.05);
-            console.log("door2 opened");
             camera.position.z = lerp(camera.position.z, targetCamZ, 0.01);
-        }else if(camera.position.z <= -70){
+        }else if(camera.position.z <= -70.7){
             targetCamZ = -(camera.position.z + (-targetCamZ));
             camera.position.z = 2;
             camera.position.z = lerp(camera.position.z, targetCamZ, 0.01);
