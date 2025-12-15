@@ -19,6 +19,26 @@ export default async function createSceneA(renderer) {
   light.position.set(5, 5, 5);
   scene.add(light);
 
+  // Work-in-progress label (DOM overlay)
+  let wipLabel = null;
+  wipLabel = document.createElement('div');
+  wipLabel.textContent = 'Work in Progress';
+  Object.assign(wipLabel.style, {
+    position: 'fixed',
+    left: '50%',
+    bottom: '50%',
+    padding: '10px 10px',
+    background: 'rgba(0,0,0,0.6)',
+    color: '#fff',
+    fontFamily: '"Inter", sans-serif',
+    fontSize: 'var(--fs-1)',
+    borderRadius: '2px',
+    zIndex: '999',
+    pointerEvents: 'none',
+    transform: 'translateX(-50%)'
+  });
+  document.body.appendChild(wipLabel);
+
   let rot = 0;
 
   // NEW → asynchronous loading
@@ -41,6 +61,8 @@ export default async function createSceneA(renderer) {
       mesh.geometry?.dispose();
       mesh.material?.dispose();
       scene.remove(light);
+      // remove DOM label
+      if (wipLabel && wipLabel.parentNode) wipLabel.parentNode.removeChild(wipLabel);
     } catch (e) {
       console.warn('error disposing sceneA', e);
     }
